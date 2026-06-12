@@ -17,4 +17,10 @@ def root():
         "version": APP_VERSION,
         "status": "running"
     }
+from fastapi import FastAPI
+from app.api import analysis_router
+
+app = FastAPI()
+
+app.include_router(analysis_router, prefix="/api")
 
