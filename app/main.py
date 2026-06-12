@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.router import router
+from app.api.analysis import router as analysis_router
 from app.config import APP_NAME, APP_VERSION
 
 app = FastAPI(
@@ -8,7 +8,7 @@ app = FastAPI(
 )
 
 # Mount API routes
-app.include_router(router, prefix="/api")
+app.include_router(analysis_router, prefix="/api")
 
 @app.get("/")
 def root():
@@ -17,10 +17,5 @@ def root():
         "version": APP_VERSION,
         "status": "running"
     }
-from fastapi import FastAPI
-from app.api import analysis_router
 
-app = FastAPI()
-
-app.include_router(analysis_router, prefix="/api")
 
