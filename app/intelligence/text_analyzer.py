@@ -3,7 +3,7 @@ from app.utils.text_cleaner import clean_text
 
 class TextAnalyzer:
     """
-    Uses an AI text model to analyze text and return structured insights.
+    Uses an AI text model to analyze text and return structured results.
     """
 
     def __init__(self, model: str = TEXT_MODEL):
@@ -11,16 +11,16 @@ class TextAnalyzer:
 
     def analyze(self, text: str) -> dict:
         """
-        Analyzes text using an AI model and returns structured results.
+        Analyzes text using an AI model and returns structured data.
         """
         cleaned = clean_text(text)
 
         # Placeholder for actual LLM call
-        # Replace with OpenAI / Anthropic / custom model later
+        # Replace with OpenAI / Anthropic / custom model call
         result = {
             "model": self.model,
             "input_text": cleaned,
-            "summary": "Placeholder summary from text model.",
+            "summary": "Placeholder summary from text model",
             "keywords": [],
             "sentiment": "neutral",
         }
@@ -28,6 +28,12 @@ class TextAnalyzer:
         return result
 
     def summarize(self, text: str) -> str:
+        """
+        Summarizes text using the AI model.
+        """
+        cleaned = clean_text(text)
+        return f"Summary placeholder for: {cleaned}"
+
 
        
 
