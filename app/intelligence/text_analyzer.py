@@ -33,7 +33,5 @@ class TextAnalyzer:
         """
         cleaned = clean_text(text)
         return f"Summary placeholder for: {cleaned}"
-
-
        
 
