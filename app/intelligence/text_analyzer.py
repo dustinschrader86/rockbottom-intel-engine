@@ -16,7 +16,6 @@ class TextAnalyzer:
         cleaned = clean_text(text)
 
         # Placeholder for actual LLM call
-        # Replace with OpenAI / Anthropic / custom model call
         result = {
             "model": self.model,
             "input_text": cleaned,
@@ -33,5 +32,6 @@ class TextAnalyzer:
         """
         cleaned = clean_text(text)
         return f"Summary placeholder for: {cleaned}"
+
        
 
