@@ -24,6 +24,9 @@ from app.api.analyze import router as analyze_router
 app.include_router(analyze_router)
 from app.api.analyze import router as analyze_router
 app.include_router(analyze_router)
+from app.api.analyze import router as analyze_router
+
+app.include_router(analyze_router, prefix="/api")
 
 
 
