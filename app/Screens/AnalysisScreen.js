@@ -17,9 +17,9 @@ export default function AnalysisScreen({ route }) {
       const base64 = await FileSystem.readAsStringAsync(imageUri, {
         encoding: FileSystem.EncodingType.Base64,
       });
-
       // Send to backend
-      const response = await fetch("http://YOUR-IP:8000/api/analyze-screenshot", {
+      const response = await fetch("https://54v96r4gj4wf7gj5-8000.app.github.dev/api/analyze-screenshot", {
+
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ image: base64 }),
