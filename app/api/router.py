@@ -35,4 +35,24 @@ async def upload_endpoint(file: UploadFile = File(...)):
     data = await file.read()
     path = files.save_bytes(data, extension=".bin")
     return {"saved_to": path}
+from fastapi import APIRouter
+from pydantic import BaseModel
+from app.intelligence.text_analyzer import TextAnalyzer
+
+router = APIRouter()
+analyzer = TextAnalyzer()
+
+
+class TextRequest(BaseModel):
+    text: str
+
+
+@router.post("/analyze-text")
+def analyze_text(payload: TextRequest):
+    return analyzer.analyze(payload.text)
+
+
+@router.post("/summarize-text")
+def summarize_text(payload: TextRequest):
+    return {"summary": analyzer.summarize(payload.text)}
 
