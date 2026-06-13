@@ -20,6 +20,8 @@ def root():
 from fastapi.staticfiles import StaticFiles
 
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+from app.api.analyze import router as analyze_router
+app.include_router(analyze_router)
 
 
 
