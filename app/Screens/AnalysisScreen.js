@@ -197,4 +197,69 @@ const styles = StyleSheet.create({
   },
   analyzeText: { color: "#fff", fontSize: 18, fontWeight: "600" },
 });
+import React, { useEffect, useState } from 'react';
+import { View, Text, ActivityIndicator, StyleSheet, Image } from 'react-native';
+
+export default function AnalysisScreen({ route, navigation }) {
+  const { screenshot } = route.params;
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    analyzeScreenshot();
+  }, []);
+
+  const analyzeScreenshot = async () => {
+    try {
+      let formData = new FormData();
+      formData.append("file", {
+        uri: screenshot,
+        name: "screenshot.jpg",
+        type: "image/jpeg",
+      });
+
+      const response = await fetch("http://YOUR_SERVER_IP:8000/api/analyze", {
+        method: "POST",
+        body: formData,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      const data = await response.json();
+
+      navigation.replace("ResultsScreen", { results: data });
+
+    } catch (err) {
+      console.log(err);
+      setError("Failed to analyze screenshot");
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Analyzing Screenshot...</Text>
+
+      <Image source={{ uri: screenshot }} style={styles.preview} />
+
+      {!error ? (
+        <ActivityIndicator size="large" color="#4caf50" style={{ marginTop: 20 }} />
+      ) : (
+        <Text style={styles.error}>{error}</Text>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#0d0d0d", padding: 20, alignItems: "center" },
+  title: { fontSize: 24, color: "#fff", marginBottom: 20, fontWeight: "600" },
+  preview: {
+    width: "90%",
+    height: 300,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  error: { color: "#ff5252", marginTop: 20, fontSize: 16 },
+});
 
