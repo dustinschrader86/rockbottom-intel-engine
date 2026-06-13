@@ -125,4 +125,76 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
 });
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, StyleSheet } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+
+export default function ScreenshotUploadScreen({ navigation }) {
+  const [image, setImage] = useState(null);
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
+
+  const analyzeImage = () => {
+    navigation.navigate("AnalysisScreen", { screenshot: image });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Upload Screenshot</Text>
+
+      <TouchableOpacity style={styles.uploadButton} onPress={pickImage}>
+        <Text style={styles.uploadText}>Choose Screenshot</Text>
+      </TouchableOpacity>
+
+      {image && (
+        <Image source={{ uri: image }} style={styles.preview} />
+      )}
+
+      {image && (
+        <TouchableOpacity style={styles.analyzeButton} onPress={analyzeImage}>
+          <Text style={styles.analyzeText}>Analyze Screenshot</Text>
+        </TouchableOpacity>
+      )}
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 20, backgroundColor: "#0d0d0d" },
+  title: { fontSize: 26, color: "#fff", marginBottom: 20, fontWeight: "600" },
+  uploadButton: {
+    backgroundColor: "#1e1e1e",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  uploadText: { color: "#fff", fontSize: 16 },
+  preview: {
+    width: "100%",
+    height: 350,
+    marginTop: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  analyzeButton: {
+    backgroundColor: "#4caf50",
+    padding: 15,
+    borderRadius: 10,
+    alignItems: "center",
+    marginTop: 20,
+  },
+  analyzeText: { color: "#fff", fontSize: 18, fontWeight: "600" },
+});
 
