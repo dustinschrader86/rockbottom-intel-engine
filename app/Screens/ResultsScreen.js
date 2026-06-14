@@ -1,76 +1,96 @@
 // /app/screens/ResultsScreen.js
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
+
+import J3TM1BEventManager from "../services/J3TM1BE";
+import J3TM1BGlitchEffect from "../components/system/J3TM1BGlitchEffect";
 
 export default function ResultsScreen({ route }) {
   const { analysis } = route.params;
 
+  const [glitch, setGlitch] = useState(false);
+
+  // Listen for hidden J3TM1B triggers
+  useEffect(() => {
+    const sub = J3TM1BEventManager.subscribe("flicker", () => {
+      setGlitch(true);
+      setTimeout(() => setGlitch(false), 600);
+    });
+
+    return () => sub.remove();
+  }, []);
+
   return (
-    <ScrollView style={styles.container}>
-      <Text style={styles.title}>SCAN RESULTS</Text>
+    <View style={styles.container}>
+      <ScrollView>
+        <Text style={styles.title}>SCAN RESULTS</Text>
 
-      {/* SUMMARY */}
-      <View style={styles.block}>
-        <Text style={styles.blockTitle}>Summary</Text>
-        <Text style={styles.blockText}>{analysis.summary}</Text>
-      </View>
-
-      {/* RISK SCORE */}
-      <View style={styles.block}>
-        <Text style={styles.blockTitle}>Risk Score</Text>
-        <Text style={[styles.riskScore, getRiskColor(analysis.risk_score)]}>
-          {analysis.risk_score}/100
-        </Text>
-      </View>
-
-      {/* FLAGS */}
-      {analysis.flags.length > 0 && (
+        {/* SUMMARY */}
         <View style={styles.block}>
-          <Text style={styles.blockTitle}>Flags</Text>
-          {analysis.flags.map((flag, i) => (
-            <Text key={i} style={styles.listItem}>• {flag}</Text>
-          ))}
+          <Text style={styles.blockTitle}>Summary</Text>
+          <Text style={styles.blockText}>{analysis.summary}</Text>
         </View>
-      )}
 
-      {/* CONTRACT ADDRESSES */}
-      {analysis.contracts.length > 0 && (
+        {/* RISK SCORE */}
         <View style={styles.block}>
-          <Text style={styles.blockTitle}>Detected Contracts</Text>
-          {analysis.contracts.map((c, i) => (
-            <Text key={i} style={styles.listItem}>{c}</Text>
-          ))}
+          <Text style={styles.blockTitle}>Risk Score</Text>
+          <Text style={[styles.riskScore, getRiskColor(analysis.risk_score)]}>
+            {analysis.risk_score}/100
+          </Text>
         </View>
-      )}
 
-      {/* WALLETS */}
-      {analysis.wallets.length > 0 && (
-        <View style={styles.block}>
-          <Text style={styles.blockTitle}>Detected Wallets</Text>
-          {analysis.wallets.map((w, i) => (
-            <Text key={i} style={styles.listItem}>{w}</Text>
-          ))}
-        </View>
-      )}
+        {/* FLAGS */}
+        {analysis.flags.length > 0 && (
+          <View style={styles.block}>
+            <Text style={styles.blockTitle}>Flags</Text>
+            {analysis.flags.map((flag, i) => (
+              <Text key={i} style={styles.listItem}>• {flag}</Text>
+            ))}
+          </View>
+        )}
 
-      {/* TICKERS */}
-      {analysis.tickers.length > 0 && (
-        <View style={styles.block}>
-          <Text style={styles.blockTitle}>Token Tickers</Text>
-          {analysis.tickers.map((t, i) => (
-            <Text key={i} style={styles.listItem}>{t}</Text>
-          ))}
-        </View>
-      )}
-    </ScrollView>
+        {/* CONTRACTS */}
+        {analysis.contracts.length > 0 && (
+          <View style={styles.block}>
+            <Text style={styles.blockTitle}>Detected Contracts</Text>
+            {analysis.contracts.map((c, i) => (
+              <Text key={i} style={styles.listItem}>{c}</Text>
+            ))}
+          </View>
+        )}
+
+        {/* WALLETS */}
+        {analysis.wallets.length > 0 && (
+          <View style={styles.block}>
+            <Text style={styles.blockTitle}>Detected Wallets</Text>
+            {analysis.wallets.map((w, i) => (
+              <Text key={i} style={styles.listItem}>{w}</Text>
+            ))}
+          </View>
+        )}
+
+        {/* TICKERS */}
+        {analysis.tickers.length > 0 && (
+          <View style={styles.block}>
+            <Text style={styles.blockTitle}>Token Tickers</Text>
+            {analysis.tickers.map((t, i) => (
+              <Text key={i} style={styles.listItem}>{t}</Text>
+            ))}
+          </View>
+        )}
+      </ScrollView>
+
+      {/* Hidden Easter‑Egg Glitch Layer */}
+      {glitch && <J3TM1BGlitchEffect />}
+    </View>
   );
 }
 
 function getRiskColor(score) {
-  if (score >= 80) return { color: "#ff0033" };
-  if (score >= 50) return { color: "#ff8800" };
-  return { color: "#00eaff" };
+  if (score >= 80) return { color: "#ff0033" };   // red
+  if (score >= 50) return { color: "#ff8800" };   // orange
+  return { color: "#00eaff" };                    // neon cyan
 }
 
 const styles = StyleSheet.create({
