@@ -34,11 +34,10 @@ export default function ResultsScreen({ route }) {
 
         {/* RISK SCORE */}
         <View style={styles.block}>
-          <Text style={styles.blockTitle}>Risk Score</Text>
-          <Text style={[styles.riskScore, getRiskColor(analysis.risk_score)]}>
-            {analysis.risk_score}/100
-          </Text>
-        </View>
+  <Text style={styles.blockTitle}>Risk Score</Text>
+  <AnimatedRiskMeter score={analysis.risk_score} />
+</View>
+
 
         {/* FLAGS */}
         {analysis.flags.length > 0 && (
