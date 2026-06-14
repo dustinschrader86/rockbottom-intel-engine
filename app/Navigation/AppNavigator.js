@@ -17,15 +17,12 @@ import { registerNavigator } from "./BlackNodeRoute";
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
+  // Optional: if your BlackNode system needs access to the navigator
+  registerNavigator(Stack);
+
   return (
-    <NavigationContainer ref={(nav) => registerNavigator(nav)}>
-      <Stack.Navigator
-        initialRouteName="Home"
-        screenOptions={{
-          headerShown: false,
-          gestureEnabled: true,
-        }}
-      >
+    <NavigationContainer>
+      <Stack.Navigator screenOptions={{ headerShown: false }}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Scan" component={ScanScreen} />
         <Stack.Screen name="Analysis" component={AnalysisScreen} />
