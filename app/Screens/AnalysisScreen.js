@@ -1,70 +1,97 @@
 // /app/screens/AnalysisScreen.js
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Animated,
-  ActivityIndicator
+  ActivityIndicator,
+  Animated
 } from "react-native";
 
-import J3TM1BEventManager from "../services/J3TM1BEventManager";
+import J3TM1BEventManager from "../services/J3TM1BE";
 import J3TM1BGlitchEffect from "../components/system/J3TM1BGlitchEffect";
 
 export default function AnalysisScreen({ route, navigation }) {
-  const { screenshot } = route.params;
+  const { imageUri } = route.params;
 
-  const fade = useRef(new Animated.Value(0)).current;
-  const progress = useRef(new Animated.Value(0)).current;
-  const [glitch, setGlitch] = useState(true);
+  const [glitch, setGlitch] = useState(false);
+  const progress = new Animated.Value(0);
 
+  // Trigger hidden J3TM1B flicker on load
   useEffect(() => {
-    J3TM1BEventManager.trigger("analysisStart");
-
-    Animated.sequence([
-      Animated.timing(fade, {
-        toValue: 1,
-        duration: 600,
-        useNativeDriver: true
-      }),
-      Animated.timing(progress, {
-        toValue: 100,
-        duration: 2200,
-        useNativeDriver: false
-      })
-    ]).start(() => {
-      setGlitch(false);
-
-      setTimeout(() => {
-        navigation.navigate("Results", { screenshot });
-      }, 400);
-    });
+    J3TM1BEventManager.trigger("flicker");
   }, []);
 
-  const progressWidth = progress.interpolate({
-    inputRange: [0, 100],
+  // Listen for J3TM1B glitch events
+  useEffect(() => {
+    const sub = J3TM1BEventManager.subscribe("flicker", () => {
+      setGlitch(true);
+      setTimeout(() => setGlitch(false), 600);
+    });
+
+    return () => sub.remove();
+  }, []);
+
+  // Animate progress bar
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: 1,
+      duration: 2500,
+      useNativeDriver: false
+    }).start();
+  }, []);
+
+  // Run backend analysis
+  useEffect(() => {
+    const runAnalysis = async () => {
+      try {
+        const formData = new FormData();
+        formData.append("file", {
+          uri: imageUri,
+          type: "image/jpeg",
+          name: "scan.jpg"
+        });
+
+        const response = await fetch("http://localhost:8000/api/analyze", {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await response.json();
+
+        navigation.replace("Results", { analysis: data });
+      } catch (err) {
+        console.error("Analysis error:", err);
+      }
+    };
+
+    setTimeout(runAnalysis, 800); // slight delay for cinematic effect
+  }, []);
+
+  const widthInterpolate = progress.interpolate({
+    inputRange: [0, 1],
     outputRange: ["0%", "100%"]
   });
 
   return (
     <View style={styles.container}>
-      <J3TM1BGlitchEffect active={glitch} />
+      <Text style={styles.title}>ANALYZING</Text>
+      <Text style={styles.subtitle}>Decrypting Screenshot Intelligence</Text>
 
-      <Animated.View style={[styles.inner, { opacity: fade }]}>
-        <Text style={styles.title}>ANALYZING</Text>
-        <Text style={styles.subtitle}>Running intelligence routines…</Text>
+      {/* Progress Bar */}
+      <View style={styles.progressBackground}>
+        <Animated.View
+          style={[styles.progressFill, { width: widthInterpolate }]}
+        />
+      </View>
 
-        <View style={styles.progressBar}>
-          <Animated.View
-            style={[styles.progressFill, { width: progressWidth }]}
-          />
-        </View>
+      <ActivityIndicator size="large" color="#00eaff" style={{ marginTop: 30 }} />
 
-        <ActivityIndicator size="large" color="#00f2ff" style={{ marginTop: 30 }} />
+      <Text style={styles.statusText}>Running OCR, AI models, and risk engine…</Text>
 
-        <Text style={styles.footer}>J3TM1B // SIGNAL PROCESSING</Text>
-      </Animated.View>
+      {/* Hidden glitch overlay */}
+      {glitch && <J3TM1BGlitchEffect />}
     </View>
   );
 }
@@ -72,41 +99,4 @@ export default function AnalysisScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  inner: {
-    width: "80%",
-    alignItems: "center"
-  },
-  title: {
-    color: "#00f2ff",
-    fontSize: 28,
-    fontFamily: "monospace",
-    marginBottom: 6
-  },
-  subtitle: {
-    color: "#00f2ff",
-    opacity: 0.6,
-    marginBottom: 30
-  },
-  progressBar: {
-    width: "100%",
-    height: 10,
-    backgroundColor: "rgba(0,255,255,0.15)",
-    borderRadius: 6,
-    overflow: "hidden"
-  },
-  progressFill: {
-    height: "100%",
-    backgroundColor: "#00f2ff"
-  },
-  footer: {
-    color: "#00f2ff",
-    opacity: 0.5,
-    marginTop: 40,
-    fontSize: 12
-  }
-});
-
+    backgroundColor
