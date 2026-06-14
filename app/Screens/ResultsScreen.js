@@ -1,98 +1,117 @@
 // /app/screens/ResultsScreen.js
 
-import React, { useEffect, useRef } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Animated,
-  Image
-} from "react-native";
-
-import J3TM1BEventManager from "../services/J3TM1BEventManager";
+import React from "react";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
 
 export default function ResultsScreen({ route }) {
-  const { screenshot } = route.params;
-
-  const fade = useRef(new Animated.Value(0)).current;
-  const slide = useRef(new Animated.Value(20)).current;
-
-  useEffect(() => {
-    J3TM1BEventManager.trigger("results");
-
-    Animated.parallel([
-      Animated.timing(fade, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true
-      }),
-      Animated.timing(slide, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true
-      })
-    ]).start();
-  }, []);
+  const { analysis } = route.params;
 
   return (
-    <View style={styles.container}>
-      <Animated.View
-        style={[
-          styles.inner,
-          {
-            opacity: fade,
-            transform: [{ translateY: slide }]
-          }
-        ]}
-      >
-        <Text style={styles.title}>SCAN RESULTS</Text>
-        <Text style={styles.subtitle}>Intelligence summary</Text>
+    <ScrollView style={styles.container}>
+      <Text style={styles.title}>SCAN RESULTS</Text>
 
-        <Image source={{ uri: screenshot }} style={styles.preview} />
+      {/* SUMMARY */}
+      <View style={styles.block}>
+        <Text style={styles.blockTitle}>Summary</Text>
+        <Text style={styles.blockText}>{analysis.summary}</Text>
+      </View>
 
-        <ScrollView style={styles.resultsBox}>
-          <Text style={styles.sectionTitle}>Token Overview</Text>
-          <Text style={styles.item}>Name: <Text style={styles.value}>Unknown Token</Text></Text>
-          <Text style={styles.item}>Symbol: <Text style={styles.value}>N/A</Text></Text>
+      {/* RISK SCORE */}
+      <View style={styles.block}>
+        <Text style={styles.blockTitle}>Risk Score</Text>
+        <Text style={[styles.riskScore, getRiskColor(analysis.risk_score)]}>
+          {analysis.risk_score}/100
+        </Text>
+      </View>
 
-          <Text style={styles.sectionTitle}>Risk Score</Text>
-          <Text style={styles.score}>72 / 100</Text>
+      {/* FLAGS */}
+      {analysis.flags.length > 0 && (
+        <View style={styles.block}>
+          <Text style={styles.blockTitle}>Flags</Text>
+          {analysis.flags.map((flag, i) => (
+            <Text key={i} style={styles.listItem}>• {flag}</Text>
+          ))}
+        </View>
+      )}
 
-          <Text style={styles.sectionTitle}>Contract Flags</Text>
-          <Text style={styles.item}>• Owner privileges detected</Text>
-          <Text style={styles.item}>• Liquidity not locked</Text>
-          <Text style={styles.item}>• High volatility</Text>
+      {/* CONTRACT ADDRESSES */}
+      {analysis.contracts.length > 0 && (
+        <View style={styles.block}>
+          <Text style={styles.blockTitle}>Detected Contracts</Text>
+          {analysis.contracts.map((c, i) => (
+            <Text key={i} style={styles.listItem}>{c}</Text>
+          ))}
+        </View>
+      )}
 
-          <Text style={styles.sectionTitle}>Holder Analysis</Text>
-          <Text style={styles.item}>• Top wallet holds 41%</Text>
-          <Text style={styles.item}>• Distribution uneven</Text>
+      {/* WALLETS */}
+      {analysis.wallets.length > 0 && (
+        <View style={styles.block}>
+          <Text style={styles.blockTitle}>Detected Wallets</Text>
+          {analysis.wallets.map((w, i) => (
+            <Text key={i} style={styles.listItem}>{w}</Text>
+          ))}
+        </View>
+      )}
 
-          <Text style={styles.sectionTitle}>Liquidity</Text>
-          <Text style={styles.item}>• Liquidity pool unstable</Text>
-          <Text style={styles.item}>• Sudden inflow detected</Text>
-
-          <Text style={styles.sectionTitle}>J3TM1B Commentary</Text>
-          <Text style={styles.comment}>
-            “Signal integrity partial.  
-            Recommend caution.  
-            Patterns resemble prior anomalies.”
-          </Text>
-        </ScrollView>
-      </Animated.View>
-    </View>
+      {/* TICKERS */}
+      {analysis.tickers.length > 0 && (
+        <View style={styles.block}>
+          <Text style={styles.blockTitle}>Token Tickers</Text>
+          {analysis.tickers.map((t, i) => (
+            <Text key={i} style={styles.listItem}>{t}</Text>
+          ))}
+        </View>
+      )}
+    </ScrollView>
   );
+}
+
+function getRiskColor(score) {
+  if (score >= 80) return { color: "#ff0033" };
+  if (score >= 50) return { color: "#ff8800" };
+  return { color: "#00eaff" };
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
-    paddingTop: 60,
-    paddingHorizontal: 20
+    backgroundColor: "#050505",
+    padding: 20
   },
-  inner: {
-    flex: 1
+  title: {
+    color: "#00eaff",
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center"
   },
-  title
-
+  block: {
+    backgroundColor: "#0d0d0d",
+    borderWidth: 1,
+    borderColor: "#111",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 20
+  },
+  blockTitle: {
+    color: "#b400ff",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10
+  },
+  blockText: {
+    color: "#ccc",
+    fontSize: 16,
+    lineHeight: 22
+  },
+  listItem: {
+    color: "#ccc",
+    fontSize: 16,
+    marginBottom: 5
+  },
+  riskScore: {
+    fontSize: 32,
+    fontWeight: "bold"
+  }
+});
