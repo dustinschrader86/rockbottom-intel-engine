@@ -1,121 +1,84 @@
 // /app/screens/DashboardScreen.js
 
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  Animated,
   TouchableOpacity
 } from "react-native";
 
-import J3TM1BEventManager from "../services/J3TM1BEventManager";
+import J3TM1BEventManager from "../services/J3TM1BE";
+import J3TM1BGlitchEffect from "../components/system/J3TM1BGlitchEffect";
 
 export default function DashboardScreen({ navigation }) {
-  const fade = useRef(new Animated.Value(0)).current;
-  const slide = useRef(new Animated.Value(20)).current;
+  const [glitch, setGlitch] = useState(false);
 
+  // Hidden J3TM1B Easter‑egg listener
   useEffect(() => {
-    J3TM1BEventManager.trigger("dashboard");
+    const sub = J3TM1BEventManager.subscribe("flicker", () => {
+      setGlitch(true);
+      setTimeout(() => setGlitch(false), 600);
+    });
 
-    Animated.parallel([
-      Animated.timing(fade, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true
-      }),
-      Animated.timing(slide, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true
-      })
-    ]).start();
+    return () => sub.remove();
   }, []);
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={[
-          styles.inner,
-          {
-            opacity: fade,
-            transform: [{ translateY: slide }]
-          }
-        ]}
-      >
+      <ScrollView>
+
+        {/* HEADER */}
         <Text style={styles.title}>DASHBOARD</Text>
-        <Text style={styles.subtitle}>System overview</Text>
+        <Text style={styles.subtitle}>Operational Intelligence Overview</Text>
 
-        <ScrollView style={styles.scroll}>
-          {/* Recent Scans */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Recent Scans</Text>
+        {/* NAV BUTTONS */}
+        <View style={styles.row}>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => navigation.navigate("Scan")}
+          >
+            <Text style={styles.navButtonText}>NEW SCAN</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity style={styles.card}>
-              <Text style={styles.cardTitle}>Unknown Token</Text>
-              <Text style={styles.cardSub}>Risk: 72 • 2h ago</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.navButton}
+            onPress={() => navigation.navigate("Settings")}
+          >
+            <Text style={styles.navButtonText}>SETTINGS</Text>
+          </TouchableOpacity>
+        </View>
 
-            <TouchableOpacity style={styles.card}>
-              <Text style={styles.cardTitle}>SOL‑X</Text>
-              <Text style={styles.cardSub}>Risk: 41 • 6h ago</Text>
-            </TouchableOpacity>
-          </View>
+        {/* RECENT SCANS */}
+        <View style={styles.block}>
+          <Text style={styles.blockTitle}>Recent Scans</Text>
+          <Text style={styles.blockText}>
+            No saved scans yet. Your completed results will appear here.
+          </Text>
+        </View>
 
-          {/* Watchlist */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Watchlist</Text>
+        {/* SYSTEM INTEL */}
+        <View style={styles.block}>
+          <Text style={styles.blockTitle}>System Intelligence</Text>
+          <Text style={styles.line}>• OCR Engine: <Text style={styles.cyan}>Active</Text></Text>
+          <Text style={styles.line}>• AI Analysis: <Text style={styles.cyan}>Operational</Text></Text>
+          <Text style={styles.line}>• Risk Model: <Text style={styles.cyan}>Calibrated</Text></Text>
+          <Text style={styles.line}>• J3TM1B Node: <Text style={styles.purple}>Dormant</Text></Text>
+        </View>
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Wallet 0xA9…F3</Text>
-              <Text style={styles.cardSub}>High activity detected</Text>
-            </View>
+        {/* RISK OVERVIEW */}
+        <View style={styles.block}>
+          <Text style={styles.blockTitle}>Risk Overview</Text>
+          <Text style={styles.line}>• High‑Risk Scans: <Text style={styles.red}>0</Text></Text>
+          <Text style={styles.line}>• Medium‑Risk Scans: <Text style={styles.orange}>0</Text></Text>
+          <Text style={styles.line}>• Low‑Risk Scans: <Text style={styles.cyan}>0</Text></Text>
+        </View>
 
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Token: VOID</Text>
-              <Text style={styles.cardSub}>Volatility spike</Text>
-            </View>
-          </View>
+      </ScrollView>
 
-          {/* System Status */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>System Status</Text>
-
-            <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>Engine:</Text>
-              <Text style={styles.statusValue}>Online</Text>
-            </View>
-
-            <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>Signals:</Text>
-              <Text style={styles.statusValue}>Stable</Text>
-            </View>
-
-            <View style={styles.statusRow}>
-              <Text style={styles.statusLabel}>J3TM1B:</Text>
-              <Text style={styles.statusValue}>Active</Text>
-            </View>
-          </View>
-
-          {/* Alerts */}
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Alerts</Text>
-
-            <View style={styles.alertCard}>
-              <Text style={styles.alertText}>
-                Liquidity anomaly detected in monitored token.
-              </Text>
-            </View>
-
-            <View style={styles.alertCard}>
-              <Text style={styles.alertText}>
-                Wallet 0xA9…F3 executed 12 transactions in 3 minutes.
-              </Text>
-            </View>
-          </View>
-        </ScrollView>
-      </Animated.View>
+      {/* Hidden glitch overlay */}
+      {glitch && <J3TM1BGlitchEffect />}
     </View>
   );
 }
@@ -123,77 +86,68 @@ export default function DashboardScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
-    paddingTop: 60,
-    paddingHorizontal: 20
-  },
-  inner: {
-    flex: 1
+    backgroundColor: "#050505",
+    padding: 20
   },
   title: {
-    color: "#00f2ff",
-    fontSize: 28,
-    fontFamily: "monospace",
-    textAlign: "center"
+    color: "#00eaff",
+    fontSize: 32,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginTop: 10
   },
   subtitle: {
-    color: "#00f2ff",
-    opacity: 0.6,
+    color: "#888",
+    fontSize: 16,
     textAlign: "center",
-    marginBottom: 20
-  },
-  scroll: {
-    flex: 1
-  },
-  section: {
     marginBottom: 30
   },
-  sectionTitle: {
-    color: "#00f2ff",
-    fontSize: 20,
-    marginBottom: 10,
-    fontFamily: "monospace"
-  },
-  card: {
-    backgroundColor: "rgba(0,255,255,0.08)",
-    borderWidth: 1,
-    borderColor: "#00f2ff",
-    padding: 14,
-    borderRadius: 8,
-    marginBottom: 10
-  },
-  cardTitle: {
-    color: "#00f2ff",
-    fontSize: 16
-  },
-  cardSub: {
-    color: "#00f2ff",
-    opacity: 0.6,
-    fontSize: 12
-  },
-  statusRow: {
+  row: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginBottom: 6
+    marginBottom: 25
   },
-  statusLabel: {
-    color: "#00f2ff",
-    opacity: 0.7
-  },
-  statusValue: {
-    color: "#00f2ff"
-  },
-  alertCard: {
-    backgroundColor: "rgba(255,0,0,0.1)",
+  navButton: {
+    flex: 1,
+    backgroundColor: "#0d0d0d",
     borderWidth: 1,
-    borderColor: "#ff0033",
-    padding: 14,
-    borderRadius: 8,
+    borderColor: "#00eaff",
+    padding: 15,
+    borderRadius: 10,
+    marginHorizontal: 5
+  },
+  navButtonText: {
+    color: "#00eaff",
+    fontSize: 18,
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  block: {
+    backgroundColor: "#0d0d0d",
+    borderWidth: 1,
+    borderColor: "#111",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 25
+  },
+  blockTitle: {
+    color: "#b400ff",
+    fontSize: 20,
+    fontWeight: "bold",
     marginBottom: 10
   },
-  alertText: {
-    color: "#ff0033",
-    fontSize: 13
-  }
+  blockText: {
+    color: "#ccc",
+    fontSize: 16,
+    lineHeight: 22
+  },
+  line: {
+    color: "#ccc",
+    fontSize: 16,
+    marginBottom: 5
+  },
+  cyan: { color: "#00eaff" },
+  purple: { color: "#b400ff" },
+  red: { color: "#ff0033" },
+  orange: { color: "#ff8800" }
 });
-
