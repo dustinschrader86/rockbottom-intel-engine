@@ -1,65 +1,66 @@
 // /app/screens/HomeScreen.js
 
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Animated
+  ScrollView
 } from "react-native";
 
-import J3TM1BEventManager from "../services/J3TM1BEventManager";
+import J3TM1BEventManager from "../services/J3TM1BE";
+import J3TM1BGlitchEffect from "../components/system/J3TM1BGlitchEffect";
 
 export default function HomeScreen({ navigation }) {
-  const fade = useRef(new Animated.Value(0)).current;
-  const slide = useRef(new Animated.Value(20)).current;
+  const [glitch, setGlitch] = useState(false);
 
+  // Hidden J3TM1B Easter‑egg listener
   useEffect(() => {
-    J3TM1BEventManager.trigger("home");
+    const sub = J3TM1BEventManager.subscribe("flicker", () => {
+      setGlitch(true);
+      setTimeout(() => setGlitch(false), 600);
+    });
 
-    Animated.parallel([
-      Animated.timing(fade, {
-        toValue: 1,
-        duration: 500,
-        useNativeDriver: true
-      }),
-      Animated.timing(slide, {
-        toValue: 0,
-        duration: 500,
-        useNativeDriver: true
-      })
-    ]).start();
+    return () => sub.remove();
   }, []);
 
   return (
     <View style={styles.container}>
-      <Animated.View
-        style={[
-          styles.inner,
-          {
-            opacity: fade,
-            transform: [{ translateY: slide }]
-          }
-        ]}
-      >
-        <Text style={styles.title}>INTEL SCANNER</Text>
-        <Text style={styles.subtitle}>Analyze screenshots instantly</Text>
+      <ScrollView>
 
+        {/* HEADER */}
+        <Text style={styles.title}>INTELLIGENCE ENGINE</Text>
+        <Text style={styles.subtitle}>Steel‑Noir Analysis Console</Text>
+
+        {/* START SCAN BUTTON */}
         <TouchableOpacity
           style={styles.scanButton}
           onPress={() => navigation.navigate("Scan")}
         >
-          <Text style={styles.scanText}>START SCAN</Text>
+          <Text style={styles.scanButtonText}>START SCAN</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          style={styles.secondaryButton}
-          onPress={() => navigation.navigate("Dashboard")}
-        >
-          <Text style={styles.secondaryText}>VIEW DASHBOARD</Text>
-        </TouchableOpacity>
-      </Animated.View>
+        {/* RECENT SCANS (placeholder for now) */}
+        <View style={styles.block}>
+          <Text style={styles.blockTitle}>Recent Scans</Text>
+          <Text style={styles.blockText}>
+            No scans saved yet. Your results will appear here.
+          </Text>
+        </View>
+
+        {/* SYSTEM STATUS */}
+        <View style={styles.block}>
+          <Text style={styles.blockTitle}>System Status</Text>
+          <Text style={styles.statusLine}>• Engine: <Text style={styles.cyan}>Online</Text></Text>
+          <Text style={styles.statusLine}>• OCR Module: <Text style={styles.cyan}>Active</Text></Text>
+          <Text style={styles.statusLine}>• J3TM1B Node: <Text style={styles.purple}>Dormant</Text></Text>
+        </View>
+
+      </ScrollView>
+
+      {/* Hidden glitch overlay */}
+      {glitch && <J3TM1BGlitchEffect />}
     </View>
   );
 }
@@ -67,50 +68,64 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "black",
-    justifyContent: "center",
-    alignItems: "center",
-    paddingHorizontal: 20
-  },
-  inner: {
-    width: "100%",
-    alignItems: "center"
+    backgroundColor: "#050505",
+    padding: 20
   },
   title: {
-    color: "#00f2ff",
+    color: "#00eaff",
     fontSize: 32,
-    fontFamily: "monospace",
+    fontWeight: "bold",
     textAlign: "center",
-    marginBottom: 6
+    marginTop: 10
   },
   subtitle: {
-    color: "#00f2ff",
-    opacity: 0.6,
+    color: "#888",
+    fontSize: 16,
     textAlign: "center",
-    marginBottom: 40
+    marginBottom: 30
   },
   scanButton: {
-    backgroundColor: "#00f2ff",
-    paddingVertical: 16,
-    paddingHorizontal: 40,
-    borderRadius: 8,
-    marginBottom: 20
-  },
-  scanText: {
-    color: "black",
-    fontSize: 18,
-    fontWeight: "bold"
-  },
-  secondaryButton: {
+    backgroundColor: "#0d0d0d",
     borderWidth: 1,
-    borderColor: "#00f2ff",
-    paddingVertical: 14,
-    paddingHorizontal: 40,
-    borderRadius: 8
+    borderColor: "#00eaff",
+    padding: 18,
+    borderRadius: 12,
+    marginBottom: 30
   },
-  secondaryText: {
-    color: "#00f2ff",
-    fontSize: 16
+  scanButtonText: {
+    color: "#00eaff",
+    fontSize: 20,
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  block: {
+    backgroundColor: "#0d0d0d",
+    borderWidth: 1,
+    borderColor: "#111",
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 25
+  },
+  blockTitle: {
+    color: "#b400ff",
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10
+  },
+  blockText: {
+    color: "#ccc",
+    fontSize: 16,
+    lineHeight: 22
+  },
+  statusLine: {
+    color: "#ccc",
+    fontSize: 16,
+    marginBottom: 5
+  },
+  cyan: {
+    color: "#00eaff"
+  },
+  purple: {
+    color: "#b400ff"
   }
 });
-
