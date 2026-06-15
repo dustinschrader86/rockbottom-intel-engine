@@ -100,4 +100,5 @@ export default function AnalysisScreen({ route, navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor
+    backgroundColor: "#000",
+
