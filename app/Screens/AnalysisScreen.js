@@ -101,4 +101,39 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  title: {
+    color: "#00eaff",
+    fontSize: 28,
+    fontWeight: "bold",
+    marginBottom: 8,
+    letterSpacing: 2,
+  },
+  subtitle: {
+    color: "#777",
+    fontSize: 14,
+    marginBottom: 30,
+  },
+  progressBackground: {
+    width: "80%",
+    height: 10,
+    backgroundColor: "#111",
+    borderRadius: 8,
+    overflow: "hidden",
+    marginTop: 10,
+  },
+  progressFill: {
+    height: "100%",
+    backgroundColor: "#00eaff",
+  },
+  statusText: {
+    color: "#888",
+    fontSize: 13,
+    marginTop: 20,
+    textAlign: "center",
+  },
+});
 
