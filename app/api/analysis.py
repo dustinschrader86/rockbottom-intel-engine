@@ -1,31 +1,17 @@
 from fastapi import APIRouter, UploadFile, File
-from PIL import Image
-import io
+from utils.ocr import extract_text
+from utils.intelligence import analyze_screenshot
 
-from app.ocr.ocr_engine import OCREngine
-from app.intelligence.text_analyzer import TextAnalyzer
+analyze = APIRouter()
 
-router = APIRouter()
-
-@router.post("/analyze")
-async def analyze_screenshot(file: UploadFile = File(...)):
-    # Read uploaded file
+@analyze.post("/")
+async def analyze_image(file: UploadFile = File(...)):
     image_bytes = await file.read()
 
-    # Convert bytes → PIL Image
-    image = Image.open(io.BytesIO(image_bytes))
-
-    # Run OCR
-    ocr = OCREngine()
-    extracted_text = ocr.extract_text(image)
-
-    # Run intelligence engine
-    analyzer = TextAnalyzer()
-    analysis = analyzer.analyze(extracted_text)
+    extracted_text = extract_text(image_bytes)
+    analysis = analyze_screenshot(extracted_text)
 
     return {
-        "raw_text": extracted_text,
+        "text": extracted_text,
         "analysis": analysis
     }
-
-
