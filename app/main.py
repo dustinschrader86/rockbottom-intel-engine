@@ -6,29 +6,7 @@ app = FastAPI()
 def home():
     return {"status": "ok"}
 
-
-)
-
-# Mount API routes
-app.include_router(api_router, prefix="/api")
-
-@app.get("/")
-def root():
-    return {
-        "app": APP_NAME,
-        "version": APP_VERSION,
-        "status": "running"
-    }
-from fastapi.staticfiles import StaticFiles
-
-app.mount("/static", StaticFiles(directory="app/static"), name="static")
-from app.api.analyze import router as analyze_router
-app.include_router(analyze_router)
-from app.api.analyze import router as analyze_router
-app.include_router(analyze_router)
-from app.api.analyze import router as analyze_router
-
-app.include_router(analyze_router, prefix="/api")
-
-
-
+@app.post("/analyze")
+async def analyze_text(data: dict):
+    text = data.get("text", "")
+    return {"length": len(text), "preview": text[:50]}
