@@ -16,7 +16,8 @@ export default function AnalysisScreen({ route, navigation }) {
   const { imageUri } = route.params;
 
   const [glitch, setGlitch] = useState(false);
-  const progress = new Animated.Value(0);
+  const progress = React.useRef(new Animated.Value(0)).current;
+
 
   // Trigger hidden J3TM1B flicker on load
   useEffect(() => {
