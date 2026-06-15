@@ -53,7 +53,7 @@ export default function AnalysisScreen({ route, navigation }) {
           name: "scan.jpg"
         });
 
-        const response = await fetch("http://localhost:8000/api/analyze", {
+        const response = await fetch("http://100.64.250.250:8000/api/analyze", {
           method: "POST",
           body: formData
         });
